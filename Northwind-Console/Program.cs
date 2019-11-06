@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Entity.Validation;
 using System.Linq;
 using NLog;
 using NorthwindConsole.Models;
@@ -48,6 +49,8 @@ namespace NorthwindConsole
                         ValidationContext context = new ValidationContext(category, null, null);
                         List<ValidationResult> results = new List<ValidationResult>();
 
+                        //var errors = db.GetValidationErrors();
+                        //if (errors.Any()) { }
                         var isValid = Validator.TryValidateObject(category, context, results, true);
                         if (isValid)
                         {
@@ -63,6 +66,10 @@ namespace NorthwindConsole
                             {
                                 logger.Info("Validation passed");
                                 // TODO: save category to db
+                                db = new NorthwindContext();
+                                db.Categories.Add(category);
+                                db.SaveChanges();
+
                             }
                         }
                         if (!isValid)
@@ -109,6 +116,8 @@ namespace NorthwindConsole
 
                 } while (choice.ToLower() != "q");
             }
+            //catch(DbEntityValidationException e)
+            //Immediate Debug
             catch (Exception ex)
             {
                 logger.Error(ex.Message);
